@@ -1,0 +1,110 @@
+GLOBAL:
+  ## stac or gee or gcld
+  backend: gcld
+  aoi: /home/yan/WorkSpace/projects/DFO-IZ-MAPPING/src/crx_experiment/output_grid/isea3h_12_aoi_intertidal.shp
+  start_date: '2025-09-20'
+  end_date: '2025-10-20'
+  ## using a csv file to define the date ranges for each cell, the csv file should contain columns: name, date (yyyymmdd)
+  #date_csv = /mnt/0_ARCTUS_Projects/30_Eeyou_IZMAPPING/data/good_images.csv
+  ## assets = LC08_L1TOA, LC08_L2RGB, S2_L1TOA, S2_L2RGB, S1_L1C, LC09_L1TOA,LC09_L2RGB
+  assets: S2_L1TOA
+  save_dir: /home/yan/WorkSpace/projects/DFO-IZ-MAPPING/data_test_downloader
+  output_mode: local # local or cloud
+  output_format: cog # cog or geotiff
+
+STAC:
+   stac_api: https://earth-search.aws.element84.com/v1
+   stac_best_item: lowest_cloud
+   stac_max_items: 50
+   clip_aoi: true
+   merge_outputs: true
+   output_format: cog
+
+GEE:
+  project_id: download-eo
+  target: water
+  ## download or info, info: only get the metadata, not download the data
+  mode: download
+  cloud_percentage: 50
+  snowice_percentage: 5
+
+## download the level-1 images from google cloud storage, for S2, it is in format of SAFE
+GCLD:
+  ## using a csv file to define the date ranges for each cell, the csv file should contain columns: name, date (yyyymmdd), product_ids (comma separated)
+  date_csv: /home/yan/WorkSpace/projects/DFO-IZ-MAPPING/data_test_downloader/good_images.csv  #this is mandate, and it will overwrite the start_date and end_date in GLOBAL
+  remove_downloaded: false   #remove the downloaded files from google cloud after processing, only keep the final outputs
+  acolite_dir: /home/yan/WorkSpace/open_source/acolite_origin/acolite #require acolite to generate TOA reflectance
+
+
+ASSETS:
+  - S2_L1TOA:
+      stac_source: sentinel-2-l1c
+      gee_source: COPERNICUS/S2_HARMONIZED
+      gcld_source: sentinel_2_index
+      include_bands: B1,B2,B3,B4,B5,B6,B7,B8,B8A,B9,B10,B11,B12
+      resolution: 10
+      save_dir: L1
+      anonym: s2_msi
+      obs_geo_pixel: true
+
+  - S2_L2SURF:
+      stac_source: sentinel-2-l2a
+      gee_source: COPERNICUS/S2_SR_HARMONIZED
+      include_bands: B1,B2,B3,B4,B5,B6,B7,B8,B8A,B9,B10,B11,B12,QA60,SCL
+      resolution: 10
+      save_dir: L2
+      anonym: s2_msi
+      obs_geo_pixel: false
+
+  - ALPHAEARTH_V1:
+      stac_source: NONE # No STAC source available
+      gee_source: GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL
+      include_bands: A00,A01,A02,A03,A04,A05,A06,A07,A08,A09,A10,A11,A12,A13,A14,A15,A16,A17,A18,A19,A20,A21,A22,A23,A24,A25,A26,A27,A28,A29,A30,A31,A32,A33,A34,A35,A36,A37,A38,A39,A40,A41,A42,A43,A44,A45,A46,A47,A48,A49,A50,A51,A52,A53,A54,A55,A56,A57,A58,A59,A60,A61,A62,A63
+      resolution: 10
+      save_dir: EMBEDDING
+      anonym: alphaearth_v1
+
+  - S2_L2RGB:
+      stac_source: sentinel-2-l2a
+      gee_source: COPERNICUS/S2_SR_HARMONIZED
+      include_bands: TCI_R, TCI_G, TCI_B
+      resolution: 10
+      save_dir: L2RGB
+      anonym: s2_msi
+      vmin: 0
+      vmax: 255
+
+  - LC08_L1TOA:
+      stac_source: NONE
+      gee_source: LANDSAT/LC08/C02/T1_TOA
+      include_bands: B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,QA_PIXEL,QA_RADSAT,SAA,SZA,VAA,VZA
+      resolution: 30
+      save_dir: L1
+      anonym: l8_oli
+
+  - LC09_L1TOA:
+     stac_source: NONE
+     gee_source: LANDSAT/LC09/C02/T1_TOA
+     include_bands: B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,QA_PIXEL,QA_RADSAT,SAA,SZA,VAA,VZA
+     resolution: 30
+     save_dir: L1
+     anonym: l9_oli2
+
+  - S3_L1TOA:
+     stac_source: NONE
+     gee_source: COPERNICUS/S3/OLCI
+     include_bands: B1,B2,B3,B4,B5,B6,B7,B8,B8A,B9,B10,B11,B12
+     resolution: 10
+     save_dir: L1
+     anonym: s2_msi
+     obs_geo_pixel: True
+
+  - S1_L1C:
+      stac_source: NONE
+      gee_source: COPERNICUS/S1_GRD
+      include_bands: HH,HV,VV,VH,angle
+      resolution: 10
+      anonym: s1_sar
+      save_dir: L1
+
+
